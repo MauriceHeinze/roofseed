@@ -1,0 +1,12 @@
+{% extends "base.html" -%}
+{% block content_title -%}
+Find a nearby tree
+{% endblock -%}
+{% block content -%}
+<form class="form " style="color: white;" action="/map" method="GET">
+  <div class="row">
+    <input class="col form-control" name="plz" placeholder="PLZ"></input>
+    <button class="col btn btn-primary btn-shadow">Find nearby trees</button>
+  </div>
+</form>
+{% endblock -%}

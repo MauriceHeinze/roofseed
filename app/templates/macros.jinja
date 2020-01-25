@@ -1,38 +1,6 @@
-{% macro render_article(article, type="card") -%}
-  {% if type == "pagination" -%}
-    <div class="card" style="width: 18rem;">
-      <div class="card-body">
-        <h5 class="card-title">{{ article.title }}</h5>
-        <h6 class="card-subtitle mb-2 text-muted">by {{ article.author }}</h6>
-        <a href="/article/{{ article.slug }}" class="card-link btn btn-primary">See more</a>
-      </div>
-    </div>
-  {% endif -%}
+{% macro tree_description(tree) -%}
+"<p>{{ tree.species_german|readify }} {{ tree.location_number }}<hr>Planted in {{ tree.year_of_planting }}<br>{{ tree.address }}<p>"
 {% endmacro -%}
 
-{% macro render_tag(tag, type="simple-btn") -%}
-  {% if type == "siple-btn" -%}
-    <button type="button" class="btn btn-primary" href="tag/{{ tag.slug }}.html">{{ tag.name}}</button>
-  {% elif type == "pagination" -%}
-  <div class="card" style="width: 18rem;">
-    <div class="card-body">
-      <h5 class="card-title">{{ tag.name }}</h5>
-      <p class="card-text">{{ kwargs["articles"]|length }} Inhalte</p>
-      <a class="btn-primary text-muted" href="/tag/{{ tag.slug }}" class="card-link">{{ tag.name }}</a>
-    </div>
-  </div>
-  {% endif -%}
-{% endmacro -%}
-
-{% macro render_pagination(pagination, render_macro, render_bar=True, layout="simple", per_page=None) -%}
-  {% if layout == "simple" -%}
-    {% for item in pagination.items -%}
-      {{ render_macro(item, type="pagination") }}
-    {% endfor -%}
-  {% elif layout == "card" -%}
-    <!-- Card pagination object -->
-  {% endif -%}
-  {% if render_bar == True -%}
-    <!-- Render Bar with numbers etc. -->
-  {% endif -%}
+{% macro render_location(location, properries) -%}
 {% endmacro -%}

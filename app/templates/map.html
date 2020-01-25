@@ -1,0 +1,89 @@
+{% from "macros.jinja" import render_location, tree_description with context -%}
+{% set content_title_visible = False -%}
+{% extends "base.html" -%}
+{% block advanced_head -%}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/2.11/lib/OpenLayers.js"></script>
+{% endblock -%}
+{% block javascript -%}
+<script>
+  map = new OpenLayers.Map("#mapdiv");
+  map.addLayer(new OpenLayers.Layer.OSM());
+
+  epsg4326 =  new OpenLayers.Projection("EPSG:4326"); //WGS 1984 projection
+  projectTo = map.getProjectionObject(); //The map projection (Spherical Mercator)
+
+  var lonLat = new OpenLayers.LonLat( -0.1279688 ,51.5077286 ).transform(epsg4326, projectTo);
+
+  var zoom=14;
+  map.setCenter (lonLat, zoom);
+
+  var vectorLayer = new OpenLayers.Layer.Vector("Overlay");
+  {% for tree in trees.trees -%}
+    // Define markers as "features" of the vector layer:
+    var description = {{ tree_description(tree) }};
+    var feature = new OpenLayers.Feature.Vector(
+           new OpenLayers.Geometry.Point( {{ tree.x }}, {{ tree.y }} ).transform(epsg4326, projectTo),
+           {description:description} ,
+           {externalGraphic: 'img/marker.png', graphicHeight: 25, graphicWidth: 21, graphicXOffset:-12, graphicYOffset:-25  }
+       );
+    vectorLayer.addFeatures(feature);
+  {% endfor -%}
+
+  map.addLayer(vectorLayer);
+
+
+  //Add a selector control to the vectorLayer with popup functions
+  var controls = {
+    selector: new OpenLayers.Control.SelectFeature(vectorLayer, { onSelect: createPopup, onUnselect: destroyPopup })
+  };
+
+  function createPopup(feature) {
+    feature.popup = new OpenLayers.Popup.FramedCloud("pop",
+        feature.geometry.getBounds().getCenterLonLat(),
+        null,
+        '<div class="markerContent">'+feature.attributes.description+'</div>',
+        null,
+        true,
+        function() { controls['selector'].unselectAll(); }
+    );
+    //feature.popup.closeOnMove = true;
+    map.addPopup(feature.popup);
+  }
+
+  function destroyPopup(feature) {
+    feature.popup.destroy();
+    feature.popup = null;
+  }
+
+  map.addControl(controls['selector']);
+  controls['selector'].activate();
+
+
+</script>
+{% endblock -%}
+{% block content -%}
+<div class="row">
+  <div class="col-lg" id="mapdiv"></div>
+  <div class="col-md container">
+    <div class="row">
+      <h4>{{ render_location(location, location_properties) }}</h4>
+      <hr>
+    </div>
+    <div class="row">
+    {#   {% for tree in trees.trees -%}
+        {{ render_tree(tree, type="simple") }}
+      {% endfor -%} #}
+    </div>
+    <form class="row d-flex justify-content-center input-group" method="POST">
+      <input type="hidden" name="location" value="{{ location }}">
+      <input type="email" name="email" placeholder="example@example.com">
+      <div class="custom-control custom-checkbox mb-3">
+        <input type="checkbox" class="custom-control-input" id="customControlValidation1" required>
+        <label class="custom-control-label" for="customControlValidation1"><a href="/eula" class="text-muted">Agree to the EULA</a></label>
+        <div class="invalid-feedback">you need to agree to the EULA before proceding</div>
+      </div>
+      <button type="button" class="btn btn-primary btn-shadow">Anfrage Senden</button>
+    </form>
+  </div>
+</div>
+{% endblock -%}

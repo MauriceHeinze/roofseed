@@ -10,11 +10,12 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 class Config:
     # App infos
+    SITENAME = "roofseed"
     APP_LOCAL = "de"
     APP_PORT = 80
     TEMPLATES_AUTO_RELOAD = True
     ENV = os.getenv("ENV") or "local development"
-    DEBUG = False
+    DEBUG = True
     EXPLAIN_TEMPLATE_LOADING = True
     EXPIRES = 10800
     PERMANENT_SESSION_LIFETIME = 10800
@@ -57,6 +58,6 @@ class Config:
     )
 
 
-class development(config):
+class development(Config):
     USER_ENABLE_REGISTER = True
     DEBUG = True
