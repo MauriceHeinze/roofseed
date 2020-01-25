@@ -53,7 +53,7 @@ class Config:
 
     # Content Settings pelican oriented
     MENUITEMS = (
-    ("Map", "/map"),
+    ("Map", "/find-tree"),
     ("About", "/about")
     )
 

@@ -15,12 +15,12 @@
   {% autoescape false %}
   var coords = {{ trees.jsonify() }};
   {% endautoescape -%}
-  var map = L.map('mapid').setView([52.513081, 13.420100], 17);
+  var map = L.map('mapid').setView([{{ long }}, {{ lat }}], 17);  // location need sto be set
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      'useCache': true
   }).addTo(map);
-  // {{ trees.trees|length }}
   for (var i = 0; i < {{ trees.trees|length }}; i++) {
     L.marker([coords[i][0], coords[i][1]]).addTo(map)
         .bindPopup(coords[i][2])
@@ -29,8 +29,10 @@
 </script>
 {% endblock -%}
 {% block content -%}
-<div class="row">
-  <div class="col" id="mapid" style="min-heigth: 8000px;"></div>
+<div class="row h-100">
+  <div class="col-xl">
+    <div id="mapid" class="h-100" style="min-height: 500px;"></div>
+  </div>
   <div class="col-md container">
     <div class="row">
       <h4>{{ render_location(location, location_properties) }}</h4>

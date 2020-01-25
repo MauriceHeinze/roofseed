@@ -1,4 +1,5 @@
 from app import app, api
+from app.models import PLZ
 from flask import render_template, request, abort
 
 
@@ -19,13 +20,19 @@ def find_view():
 
 @app.route("/map")
 def map_view():
+    use_pages = ("pages" in request.args.keys())
     if "plz" not in request.args.keys() and \
        "location" not in request.args.keys():
         return abort(400)
     elif "plz" in request.args.keys():
-        long, lat = api.get_plz(request.args.get("plz", type=int))
-        trees = api.find_nearby(long, lat)
-        return render_template("map.html", trees=trees,
+        plz = PLZ.query.filter_by(plz=request.args.get("plz", type=int)).first_or_404()
+        long, lat = plz.long, plz.lat
+        if use_pages:
+            trees = api.find_nearby(long, lat,
+                                    pages=request.args.get("pages", type=int))
+        else:
+            trees = api.find_nearby(long, lat)
+        return render_template("map.html", trees=trees, long=long, lat=lat,
                                location=request.args.get("plz", type=int))
     elif "location" in request.args.keys():
         trees = api.bound_box((), ())

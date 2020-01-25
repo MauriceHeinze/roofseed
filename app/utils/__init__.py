@@ -35,6 +35,16 @@ class TreeGroup:
         """Convience method for self.trees.pop(tree)"""
         self.trees.pop(index)
 
+    def add_next(self):
+        if self.next is None:
+            raise TreeException("No next available")
+        else:
+            next = Trees.parse(requests.get(self.next))
+            self.next = next.next
+            print(next.next)
+            [self.trees.append(tree)
+             for tree in next.trees]
+
     def remove_tree(self, tree):
         """Convience method for self.trees.remove(tree)"""
         self.trees.remove(tree)
@@ -56,7 +66,8 @@ class Trees:
         params = {"in_bbox": [co1[0], co1[1], co2[0], co2[1]]}
         return self.parse(requests.get(self.url, params=params))
 
-    def parse(self, response):
+    @staticmethod
+    def parse(response):
         """Parses Api responses to usable tree objects"""
         if not response.status_code == 200:
             raise TreeException(f"API respond with unexpected \
@@ -70,24 +81,18 @@ class Trees:
          for entry in data["features"]]
         return group
 
-    def find_nearby(self, long, lat):
-        params = {"in_bbox": [long-0.001, lat+0.001, long+0.001, lat-0.001]}
-        return self.parse(requests.get(self.url, params=params))
+    def find_nearby(self, long, lat, pages=1):
+        params = {"in_bbox": [long+1, lat+1, long-1, lat-1]}
+        if pages == 1:
+            return self.parse(requests.get(self.url, params=params))
+        else:
+            group = self.parse(requests.get(self.url, params=params))
+            [group.add_next() for i in range(pages-1)]
+            return group
 
     def find_bezirk(self, bezirk):
         params = {"bezirk": bezirk}
         return self.parse(requests.get(self.url, params=params))
-
-    def get_plz(self, plz):
-        params = {"dataset": "postleitzahlen-deutschland",
-                  "q": 10405, "facet": "plz"}
-        url = "https://public.opendatasoft.com/api/records/1.0/search/"
-        response = requests.get(url, params=params)
-        if response.status_code != 200:
-            return TreeException("Api is not responding")
-        else:
-            return response.json()["records"][0]["fields"]["geo_point_2d"][0], \
-                   response.json()["records"][0]["fields"]["geo_point_2d"][1]
 
     def find_trees(self, mode):
         trees = requests.get(self.url, params={""})
