@@ -13,6 +13,11 @@ class Tree:
         for key, val in kwargs.items():
             self.__setattr__(key, val)  # properries support
 
+    def description(self):
+        return f"<p>{self.species_german.title()} {self.location_number}<hr> \
+                Planted in {self.year_of_planting }<br>{self.address }<p>"
+
+
 
 class TreeGroup:
     def __init__(self, trees, count=0, raw_type="", next=None, previous=None):
@@ -33,6 +38,9 @@ class TreeGroup:
     def remove_tree(self, tree):
         """Convience method for self.trees.remove(tree)"""
         self.trees.remove(tree)
+
+    def jsonify(self):
+        return [[tree.x, tree.y, tree.description()] for tree in self.trees]
 
 
 class Trees:
@@ -78,7 +86,6 @@ class Trees:
         if response.status_code != 200:
             return TreeException("Api is not responding")
         else:
-            print(response.json())
             return response.json()["records"][0]["fields"]["geo_point_2d"][0], \
                    response.json()["records"][0]["fields"]["geo_point_2d"][1]
 

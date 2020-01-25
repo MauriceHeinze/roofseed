@@ -2,71 +2,35 @@
 {% set content_title_visible = False -%}
 {% extends "base.html" -%}
 {% block advanced_head -%}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/2.11/lib/OpenLayers.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+  integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+  crossorigin=""/>
+  <!-- Make sure you put this AFTER Leaflet's CSS -->
+  <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
+    integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
+    crossorigin=""></script>
 {% endblock -%}
 {% block javascript -%}
 <script>
-  map = new OpenLayers.Map("mapdiv");
-  map.addLayer(new OpenLayers.Layer.OSM());
+  {% autoescape false %}
+  var coords = {{ trees.jsonify() }};
+  {% endautoescape -%}
+  var map = L.map('mapid').setView([52.513081, 13.420100], 17);
 
-  epsg4326 =  new OpenLayers.Projection("EPSG:4326"); //WGS 1984 projection
-  projectTo = map.getProjectionObject(); //The map projection (Spherical Mercator)
-
-  var zoom=14;
-  map.setCenter(new OpenLayers.LonLat(-0.1279688 ,51.5077286) // Center of the map
-    .transform(
-      epsg4326, // transform from WGS 1984
-      projectTo // to Spherical Mercator Projection
-    ), zoom // Zoom level
-  );
-
-  var vectorLayer = new OpenLayers.Layer.Vector("Overlay");
-  {% for tree in trees.trees -%}
-    // Define markers as "features" of the vector layer:
-    var description = {{ tree_description(tree) }};
-    var feature = new OpenLayers.Feature.Vector(
-           new OpenLayers.Geometry.Point( {{ tree.x }}, {{ tree.y }} ).transform(epsg4326, projectTo),
-           {description:description} ,
-           {externalGraphic: 'img/marker.png', graphicHeight: 25, graphicWidth: 21, graphicXOffset:-12, graphicYOffset:-25  }
-       );
-    vectorLayer.addFeatures(feature);
-  {% endfor -%}
-
-  map.addLayer(vectorLayer);
-
-
-  //Add a selector control to the vectorLayer with popup functions
-  var controls = {
-    selector: new OpenLayers.Control.SelectFeature(vectorLayer, { onSelect: createPopup, onUnselect: destroyPopup })
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+  }).addTo(map);
+  // {{ trees.trees|length }}
+  for (var i = 0; i < {{ trees.trees|length }}; i++) {
+    L.marker([coords[i][0], coords[i][1]]).addTo(map)
+        .bindPopup(coords[i][2])
+        .openPopup();
   };
-
-  function createPopup(feature) {
-    feature.popup = new OpenLayers.Popup.FramedCloud("pop",
-        feature.geometry.getBounds().getCenterLonLat(),
-        null,
-        '<div class="markerContent">'+feature.attributes.description+'</div>',
-        null,
-        true,
-        function() { controls['selector'].unselectAll(); }
-    );
-    //feature.popup.closeOnMove = true;
-    map.addPopup(feature.popup);
-  }
-
-  function destroyPopup(feature) {
-    feature.popup.destroy();
-    feature.popup = null;
-  }
-
-  map.addControl(controls['selector']);
-  controls['selector'].activate();
-
-
 </script>
 {% endblock -%}
 {% block content -%}
-<div class="row h-80">
-  <div class="col-lg h-80" id="mapdiv" style="height: 80%; position:relative;"></div>
+<div class="row">
+  <div class="col" id="mapid" style="min-heigth: 8000px;"></div>
   <div class="col-md container">
     <div class="row">
       <h4>{{ render_location(location, location_properties) }}</h4>

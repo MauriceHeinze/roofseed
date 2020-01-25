@@ -19,7 +19,6 @@ def find_view():
 
 @app.route("/map")
 def map_view():
-    print([key for key in request.args.keys()])
     if "plz" not in request.args.keys() and \
        "location" not in request.args.keys():
         return abort(400)
