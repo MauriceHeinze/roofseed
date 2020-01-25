@@ -39,3 +39,8 @@ def map_view():
         return render_template("map.html",
                                locals=request.args.get("location"),
                                trees=trees)
+
+
+@app.route("/about")
+def about_view():
+    return render_template("about.html")

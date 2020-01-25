@@ -18,9 +18,13 @@
   var map = L.map('mapid').setView([{{ long }}, {{ lat }}], 17);  // location need sto be set
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-      'useCache': true
-  }).addTo(map);
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>'
+      }).addTo(map);
+
+  // show the scale bar on the lower left corner
+  L.control.scale().addTo(map);
+
   for (var i = 0; i < {{ trees.trees|length }}; i++) {
     L.marker([coords[i][0], coords[i][1]]).addTo(map)
         .bindPopup(coords[i][2])
