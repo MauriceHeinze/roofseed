@@ -6,16 +6,19 @@
 {% endblock -%}
 {% block javascript -%}
 <script>
-  map = new OpenLayers.Map("#mapdiv");
+  map = new OpenLayers.Map("mapdiv");
   map.addLayer(new OpenLayers.Layer.OSM());
 
   epsg4326 =  new OpenLayers.Projection("EPSG:4326"); //WGS 1984 projection
   projectTo = map.getProjectionObject(); //The map projection (Spherical Mercator)
 
-  var lonLat = new OpenLayers.LonLat( -0.1279688 ,51.5077286 ).transform(epsg4326, projectTo);
-
   var zoom=14;
-  map.setCenter (lonLat, zoom);
+  map.setCenter(new OpenLayers.LonLat(-0.1279688 ,51.5077286) // Center of the map
+    .transform(
+      epsg4326, // transform from WGS 1984
+      projectTo // to Spherical Mercator Projection
+    ), zoom // Zoom level
+  );
 
   var vectorLayer = new OpenLayers.Layer.Vector("Overlay");
   {% for tree in trees.trees -%}
@@ -62,8 +65,8 @@
 </script>
 {% endblock -%}
 {% block content -%}
-<div class="row">
-  <div class="col-lg" id="mapdiv"></div>
+<div class="row h-80">
+  <div class="col-lg h-80" id="mapdiv" style="height: 80%; position:relative;"></div>
   <div class="col-md container">
     <div class="row">
       <h4>{{ render_location(location, location_properties) }}</h4>
