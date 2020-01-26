@@ -1,0 +1,42 @@
+body {
+  font-family: 'Poppins', sans-serif;
+  color: #404F5D;
+}
+
+h1,h2,h3,h4,h5,h6 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 800;
+}
+p {
+    font-size: 18px;
+	font-family: 'Poppins', sans-serif;
+}
+
+.form-inline {
+	width: 100%;
+}
+
+.code {
+	margin-top: auto;
+	margin-bottom: auto;
+	height: 100vh!important;
+}
+
+.jumbotron {
+	background-color: transparent;
+}
+
+.container .map {
+	max-width: 100%!important;
+}
+
+.list-group-item {
+	border: none!important;
+	display: inline-flex;
+}
+
+.btn.btn-primary-green {
+	width: 100%!important;
+	background-color: #37B27B!important;
+	color: #fff;
+}
